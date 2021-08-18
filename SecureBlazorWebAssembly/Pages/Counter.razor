@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Microsoft.AspNetCore.Authorization
 @inject IAccessTokenProvider TokenProvider
+@inject AuthorizationMessageHandler AuthMessageHandler
+@inject IHttpClientFactory ClientFactory
 @attribute [Authorize]
 
 
@@ -18,6 +20,23 @@
     private async Task IncrementCount()
     {
         currentCount++;
+
+        try
+        {
+            var client = ClientFactory.CreateClient("WebAPI");
+
+            var examples =
+                await client.GetAsync("");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception ex)
+        {
+            var r = ex;
+        }
+
         var tokenResult = await TokenProvider.RequestAccessToken(
             new AccessTokenRequestOptions
             {
