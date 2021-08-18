@@ -23,7 +23,7 @@ namespace SecureBlazorWebAssembly
             {
                 // Configure your authentication provider options here.
                 // For more information, see https://aka.ms/blazor-standalone-auth
-                builder.Configuration.Bind("Local", options.ProviderOptions);
+                builder.Configuration.Bind("oidc", options.ProviderOptions);
             });
 
             await builder.Build().RunAsync();
