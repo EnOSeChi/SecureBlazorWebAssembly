@@ -4,6 +4,7 @@
 @inject IAccessTokenProvider TokenProvider
 @inject AuthorizationMessageHandler AuthMessageHandler
 @inject IHttpClientFactory ClientFactory
+@inject NavigationManager Navigation
 @attribute [Authorize]
 
 
@@ -26,7 +27,7 @@
             var client = ClientFactory.CreateClient("WebAPI");
 
             var examples =
-                await client.GetAsync("");
+                await client.GetAsync("test");
         }
         catch (AccessTokenNotAvailableException exception)
         {
@@ -46,6 +47,10 @@
         if (tokenResult.TryGetToken(out var token))
         {
             tokentest = token.Value;
+        }
+        else
+        {
+            Navigation.NavigateTo(tokenResult.RedirectUrl);
         }
     }
 }
