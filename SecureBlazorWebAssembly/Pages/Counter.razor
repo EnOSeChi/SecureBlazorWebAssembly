@@ -1,4 +1,9 @@
 ﻿@page "/counter"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.Authorization
+@inject IAccessTokenProvider TokenProvider
+@attribute [Authorize]
+
 
 <h1>Counter</h1>
 
@@ -8,9 +13,20 @@
 
 @code {
     private int currentCount = 0;
+    private string tokentest;
 
-    private void IncrementCount()
+    private async Task IncrementCount()
     {
         currentCount++;
+        var tokenResult = await TokenProvider.RequestAccessToken(
+            new AccessTokenRequestOptions
+            {
+                Scopes = new[] { "profile" }
+            });
+
+        if (tokenResult.TryGetToken(out var token))
+        {
+            tokentest = token.Value;
+        }
     }
 }
