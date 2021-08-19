@@ -1,10 +1,7 @@
 ﻿@page "/counter"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Microsoft.AspNetCore.Authorization
-@inject IAccessTokenProvider TokenProvider
-@inject AuthorizationMessageHandler AuthMessageHandler
-@inject IHttpClientFactory ClientFactory
-@inject NavigationManager Navigation
+@inject HttpClient Http
 @attribute [Authorize]
 
 
@@ -12,11 +9,16 @@
 
 <p>Current count: @currentCount</p>
 
+
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<p>@tokentest</p>
+<p>@exception</p>
 
 @code {
     private int currentCount = 0;
     private string tokentest;
+    private string exception;
 
     private async Task IncrementCount()
     {
@@ -24,10 +26,8 @@
 
         try
         {
-            var client = ClientFactory.CreateClient("WebAPI");
-
             var examples =
-                await client.GetAsync("test");
+                await Http.GetAsync("https://localhost:4000/test");
         }
         catch (AccessTokenNotAvailableException exception)
         {
@@ -35,22 +35,7 @@
         }
         catch (Exception ex)
         {
-            var r = ex;
-        }
-
-        var tokenResult = await TokenProvider.RequestAccessToken(
-            new AccessTokenRequestOptions
-            {
-                Scopes = new[] { "profile" }
-            });
-
-        if (tokenResult.TryGetToken(out var token))
-        {
-            tokentest = token.Value;
-        }
-        else
-        {
-            Navigation.NavigateTo(tokenResult.RedirectUrl);
+            exception = ex.Message;
         }
     }
 }
