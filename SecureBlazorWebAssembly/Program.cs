@@ -15,16 +15,17 @@ namespace SecureBlazorWebAssembly
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
-            builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
+            builder.Services.AddHttpClient("api")
+                .AddHttpMessageHandler(sp =>
+                {
+                    var handler = sp.GetService<AuthorizationMessageHandler>()
+                        .ConfigureHandler(
+                            authorizedUrls: new[] { "https://localhost:4000" });
 
-            //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+                    return handler;
+                });
 
-            builder.Services.AddHttpClient("WebAPI",
-                    client => client.BaseAddress = new Uri("http://localhost:4000"))
-                .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
-
-            builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>()
-                .CreateClient("WebAPI"));
+            builder.Services.AddScoped(sp => sp.GetService<IHttpClientFactory>().CreateClient("api"));
 
             builder.Services.AddOidcAuthentication(options =>
             {
